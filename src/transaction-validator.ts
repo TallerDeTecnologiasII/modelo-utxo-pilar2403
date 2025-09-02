@@ -19,6 +19,8 @@ export class TransactionValidator {
   validateTransaction(transaction: Transaction): ValidationResult {
     const errors: ValidationError[] = []
 
+    let totalInput = 0;
+
     for (const input of transaction.inputs) {
        const utxo = this.utxoPool.getUTXO(input.utxoId.txId, input.utxoId.outputIndex);
       if (!utxo) {
@@ -27,9 +29,22 @@ export class TransactionValidator {
           `UTXO no encontrado para txId=${input.utxoId.txId}, outputIndex=${input.utxoId.outputIndex}`
         ));
       }
+      else{
+       totalInput += utxo.amount;
+      }
     }
 
-    //throw new Error('Transaction validation not implemented - this is your assignment!');
+    let totalOutput = 0;
+    for (const output of transaction.outputs) {
+      totalOutput += output.amount;
+    }
+
+    if(totalInput != totalOutput){
+        errors.push(createValidationError(
+        VALIDATION_ERRORS.AMOUNT_MISMATCH,
+      `Suma de entradas (${totalInput}) no coincide con suma de salidas (${totalOutput})`
+        ));
+    }
 
     return {
       valid: errors.length === 0,
