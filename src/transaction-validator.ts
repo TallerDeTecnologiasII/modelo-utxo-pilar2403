@@ -19,20 +19,20 @@ export class TransactionValidator {
   validateTransaction(transaction: Transaction): ValidationResult {
     const errors: ValidationError[] = []
 
- if (transaction.inputs.length === 0) {
-    errors.push(createValidationError(
-      VALIDATION_ERRORS.EMPTY_INPUTS,
-      'La transacción no tiene entradas'
-    ));
-  }
+    if (transaction.inputs.length === 0) {
+      errors.push(createValidationError(
+        VALIDATION_ERRORS.EMPTY_INPUTS,
+        'La transacción no tiene entradas'
+      ));
+    }
 
-  // Verificar que haya outputs
-  if (transaction.outputs.length === 0) {
-    errors.push(createValidationError(
-      VALIDATION_ERRORS.EMPTY_OUTPUTS,
-      'La transacción no tiene salidas'
-    ));
-  }
+
+    if (transaction.outputs.length === 0) {
+      errors.push(createValidationError(
+        VALIDATION_ERRORS.EMPTY_OUTPUTS,
+        'La transacción no tiene salidas'
+      ));
+    }
 
     let totalInput = 0;
 
@@ -46,6 +46,14 @@ export class TransactionValidator {
       }
       else{
        totalInput += utxo.amount;
+       const txDataToSign = this.createTransactionDataForSigning_(transaction);
+      const isValidSignature = verify(txDataToSign, input.signature, input.owner);
+      if (!isValidSignature) {
+        errors.push(createValidationError(
+          VALIDATION_ERRORS.INVALID_SIGNATURE,
+          `Firma inválida para input de txId=${input.utxoId.txId}, outputIndex=${input.utxoId.outputIndex}`
+        ));
+      }
       }
     }
 
@@ -60,6 +68,8 @@ export class TransactionValidator {
       `Suma de entradas (${totalInput}) no coincide con suma de salidas (${totalOutput})`
         ));
     }
+
+
 
     return {
       valid: errors.length === 0,
