@@ -17,11 +17,19 @@ export class TransactionValidator {
    * @returns {ValidationResult} The validation result
    */
   validateTransaction(transaction: Transaction): ValidationResult {
-    const errors: ValidationError[] = [];
+    const errors: ValidationError[] = []
 
-    // STUDENT ASSIGNMENT: Implement the validation logic above
-    // Remove this line and implement the actual validation
-    throw new Error('Transaction validation not implemented - this is your assignment!');
+    for (const input of transaction.inputs) {
+       const utxo = this.utxoPool.getUTXO(input.utxoId.txId, input.utxoId.outputIndex);
+      if (!utxo) {
+          errors.push(createValidationError(
+          VALIDATION_ERRORS.UTXO_NOT_FOUND,
+          `UTXO no encontrado para txId=${input.utxoId.txId}, outputIndex=${input.utxoId.outputIndex}`
+        ));
+      }
+    }
+
+    //throw new Error('Transaction validation not implemented - this is your assignment!');
 
     return {
       valid: errors.length === 0,
