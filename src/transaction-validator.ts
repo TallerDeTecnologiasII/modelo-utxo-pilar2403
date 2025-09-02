@@ -19,6 +19,21 @@ export class TransactionValidator {
   validateTransaction(transaction: Transaction): ValidationResult {
     const errors: ValidationError[] = []
 
+ if (transaction.inputs.length === 0) {
+    errors.push(createValidationError(
+      VALIDATION_ERRORS.EMPTY_INPUTS,
+      'La transacción no tiene entradas'
+    ));
+  }
+
+  // Verificar que haya outputs
+  if (transaction.outputs.length === 0) {
+    errors.push(createValidationError(
+      VALIDATION_ERRORS.EMPTY_OUTPUTS,
+      'La transacción no tiene salidas'
+    ));
+  }
+
     let totalInput = 0;
 
     for (const input of transaction.inputs) {
