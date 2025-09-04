@@ -19,19 +19,31 @@ export class TransactionValidator {
   validateTransaction(transaction: Transaction): ValidationResult {
     const errors: ValidationError[] = []
 
-    if (transaction.inputs.length === 0) {
+    if (transaction.inputs.length === 0 ) {
       errors.push(createValidationError(
         VALIDATION_ERRORS.EMPTY_INPUTS,
         'La transacción no tiene entradas'
       ));
     }
 
-
     if (transaction.outputs.length === 0) {
       errors.push(createValidationError(
         VALIDATION_ERRORS.EMPTY_OUTPUTS,
         'La transacción no tiene salidas'
       ));
+    }
+
+
+    const used: string[] = [];
+    for (const input of transaction.inputs) {
+      const utxoKey = `${input.utxoId.txId}:${input.utxoId.outputIndex}`;
+      if (used.includes(utxoKey)) {
+        errors.push(createValidationError(
+          VALIDATION_ERRORS.DOUBLE_SPENDING,
+          `UTXO duplicado detectado: txId=${input.utxoId.txId}, outputIndex=${input.utxoId.outputIndex}`
+        ));
+      }
+      used.push(utxoKey);
     }
 
     let totalInput = 0;
@@ -46,9 +58,9 @@ export class TransactionValidator {
       }
       else{
        totalInput += utxo.amount;
-       const txDataToSign = this.createTransactionDataForSigning_(transaction);
-      const isValidSignature = verify(txDataToSign, input.signature, input.owner);
-      if (!isValidSignature) {
+       const transactionData  = this.createTransactionDataForSigning_(transaction);
+      const isValid  = verify(transactionData , input.signature, input.owner);
+      if (!isValid ) {
         errors.push(createValidationError(
           VALIDATION_ERRORS.INVALID_SIGNATURE,
           `Firma inválida para input de txId=${input.utxoId.txId}, outputIndex=${input.utxoId.outputIndex}`
