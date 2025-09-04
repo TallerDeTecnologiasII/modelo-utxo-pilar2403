@@ -40,7 +40,7 @@ export class TransactionValidator {
       if (used.includes(utxoKey)) {
         errors.push(createValidationError(
           VALIDATION_ERRORS.DOUBLE_SPENDING,
-          `UTXO duplicado detectado: txId=${input.utxoId.txId}, outputIndex=${input.utxoId.outputIndex}`
+          `UTXO duplicado: txId=${input.utxoId.txId}, outputIndex=${input.utxoId.outputIndex}`
         ));
       }
       used.push(utxoKey);
