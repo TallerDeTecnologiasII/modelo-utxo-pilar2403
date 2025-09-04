@@ -72,18 +72,6 @@ export class TransactionValidator {
     let totalOutput = 0;
     for (const output of transaction.outputs) {
       totalOutput += output.amount;
-    }
-
-    if(totalInput != totalOutput){
-        errors.push(createValidationError(
-        VALIDATION_ERRORS.AMOUNT_MISMATCH,
-      `Suma de entradas (${totalInput}) no coincide con suma de salidas (${totalOutput})`
-        ));
-    }
-
-
-    for (const output of transaction.outputs) {
-      totalOutput += output.amount;
 
       if (output.amount <= 0) {
         errors.push(createValidationError(
@@ -91,6 +79,13 @@ export class TransactionValidator {
         `Output inválido con monto ${output.amount} para recipient=${output.recipient}`
       ));
       }
+    }
+
+    if(totalInput != totalOutput){
+        errors.push(createValidationError(
+        VALIDATION_ERRORS.AMOUNT_MISMATCH,
+      `Suma de entradas (${totalInput}) no coincide con suma de salidas (${totalOutput})`
+        ));
     }
 
     return {
