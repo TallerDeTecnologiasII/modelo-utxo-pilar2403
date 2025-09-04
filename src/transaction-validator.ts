@@ -19,6 +19,7 @@ export class TransactionValidator {
   validateTransaction(transaction: Transaction): ValidationResult {
     const errors: ValidationError[] = []
 
+     // Verificar que la transacción tenga al menos una entrada
     if (transaction.inputs.length === 0 ) {
       errors.push(createValidationError(
         VALIDATION_ERRORS.EMPTY_INPUTS,
@@ -26,6 +27,7 @@ export class TransactionValidator {
       ));
     }
 
+     // Verificar que la transacción tenga al menos una salida
     if (transaction.outputs.length === 0) {
       errors.push(createValidationError(
         VALIDATION_ERRORS.EMPTY_OUTPUTS,
@@ -33,7 +35,7 @@ export class TransactionValidator {
       ));
     }
 
-
+    // Verificar que la transacción no tengo UTXO repetidos
     const used: string[] = [];
     for (const input of transaction.inputs) {
       const utxoKey = `${input.utxoId.txId}:${input.utxoId.outputIndex}`;
@@ -50,16 +52,18 @@ export class TransactionValidator {
 
     for (const input of transaction.inputs) {
        const utxo = this.utxoPool.getUTXO(input.utxoId.txId, input.utxoId.outputIndex);
-      if (!utxo) {
+       //lanzar error si UTXO no existe
+       if (!utxo) {
           errors.push(createValidationError(
           VALIDATION_ERRORS.UTXO_NOT_FOUND,
           `UTXO no encontrado para txId=${input.utxoId.txId}, outputIndex=${input.utxoId.outputIndex}`
         ));
       }
       else{
+        // Verificar firma
        totalInput += utxo.amount;
        const transactionData  = this.createTransactionDataForSigning_(transaction);
-      const isValid  = verify(transactionData , input.signature, input.owner);
+       const isValid  = verify(transactionData , input.signature, input.owner);
       if (!isValid ) {
         errors.push(createValidationError(
           VALIDATION_ERRORS.INVALID_SIGNATURE,
@@ -72,7 +76,7 @@ export class TransactionValidator {
     let totalOutput = 0;
     for (const output of transaction.outputs) {
       totalOutput += output.amount;
-
+       // si la rtansaccion tiene salida negativa lanzar error
       if (output.amount <= 0) {
         errors.push(createValidationError(
         VALIDATION_ERRORS.NEGATIVE_AMOUNT,
@@ -80,7 +84,7 @@ export class TransactionValidator {
       ));
       }
     }
-
+  // Verificar que la transacción tenga misma cantidad de entrada que de salida
     if(totalInput != totalOutput){
         errors.push(createValidationError(
         VALIDATION_ERRORS.AMOUNT_MISMATCH,
