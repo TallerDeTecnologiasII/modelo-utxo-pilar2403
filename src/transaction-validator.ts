@@ -82,6 +82,16 @@ export class TransactionValidator {
     }
 
 
+    for (const output of transaction.outputs) {
+      totalOutput += output.amount;
+
+      if (output.amount <= 0) {
+        errors.push(createValidationError(
+        VALIDATION_ERRORS.NEGATIVE_AMOUNT,
+        `Output inválido con monto ${output.amount} para recipient=${output.recipient}`
+      ));
+      }
+    }
 
     return {
       valid: errors.length === 0,
