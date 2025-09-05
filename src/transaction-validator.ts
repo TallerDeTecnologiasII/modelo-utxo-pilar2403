@@ -19,7 +19,7 @@ export class TransactionValidator {
   validateTransaction(transaction: Transaction): ValidationResult {
     const errors: ValidationError[] = []
 
-     // Verificar que la transacción tenga al menos una entrada
+     // Verificar que la transacción tenga al menos una entradA
     if (transaction.inputs.length === 0 ) {
       errors.push(createValidationError(
         VALIDATION_ERRORS.EMPTY_INPUTS,
@@ -60,7 +60,7 @@ export class TransactionValidator {
         ));
       }
       else{
-        // Verificar firma
+        // Verificar que sea la firma correcta
        totalInput += utxo.amount;
        const transactionData  = this.createTransactionDataForSigning_(transaction);
        const isValid  = verify(transactionData , input.signature, input.owner);
