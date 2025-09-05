@@ -253,7 +253,7 @@ describe('UTXO System Tests', () => {
 
         const result = validator.validateTransaction(transaction);
         expect(result.valid).toBe(false);
-        expect(result.errors.some(e => e.code === VALIDATION_ERRORS.NEGATIVE_AMOUNT)).toBe(true);
+        expect(result.errors.some(e => e.code === VALIDATION_ERRORS.ZERO_AMOUNT)).toBe(true);
       });
     });
 

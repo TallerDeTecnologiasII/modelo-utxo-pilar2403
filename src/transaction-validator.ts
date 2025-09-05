@@ -76,12 +76,19 @@ export class TransactionValidator {
     let totalOutput = 0;
     for (const output of transaction.outputs) {
       totalOutput += output.amount;
-       // si la rtansaccion tiene salida negativa lanzar error
-      if (output.amount <= 0) {
+       // si la transaccion tiene salida negativa lanzar error
+      if (output.amount < 0) {
         errors.push(createValidationError(
         VALIDATION_ERRORS.NEGATIVE_AMOUNT,
-        `Output inválido con monto ${output.amount} para recipient=${output.recipient}`
-      ));
+        `Output inválido con monto negativo ${output.amount} para recipient=${output.recipient}`
+        ));
+      } else 
+       // si la transaccion tiene salida cero lanzar error
+      if (output.amount === 0) {
+        errors.push(createValidationError(
+        VALIDATION_ERRORS.ZERO_AMOUNT,
+        `Output inválido con monto cero para recipient=${output.recipient}`
+        ));
       }
     }
   // Verificar que la transacción tenga misma cantidad de entrada que de salida
